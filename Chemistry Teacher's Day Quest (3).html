@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chemistry Teacher's Day Quest</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Orbitron:wght@600;800&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+        .font-handwriting { font-family: 'Caveat', cursive; }
+
+        .glow-title {
+            text-shadow: 0 0 18px rgba(56, 189, 248, 0.7), 0 0 35px rgba(14, 165, 233, 0.5);
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            box-shadow: 0 10px 35px 0 rgba(0, 0, 0, 0.7);
+        }
+
+        #flasks-grid-wrapper {
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #flasks-grid {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 360px;
+            height: 180px;
+        }
+
+        .flask-card {
+            position: absolute;
+            width: 68px;
+            height: 160px;
+            cursor: grab;
+            transition: transform 0.25s cubic-bezier(0.2, 0, 0.2, 1);
+            touch-action: none;
+            z-index: 10;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flask-card:active { cursor: grabbing; }
+
+        .flask-card.dragging {
+            z-index: 50 !important;
+            transition: transform 0s linear !important;
+            filter: drop-shadow(0 15px 25px rgba(56, 189, 248, 0.9));
+        }
+
+        @keyframes bubble-rise {
+            0% { transform: translateY(0) scale(0.5); opacity: 0.85; }
+            100% { transform: translateY(-110px) scale(1.3); opacity: 0; }
+        }
+
+        .bubble-particle {
+            position: absolute;
+            background: rgba(186, 230, 254, 0.9);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: bubble-rise 1.4s infinite ease-in;
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.9);
+        }
+
+        #explosion-overlay {
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        @keyframes screen-shake {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            10% { transform: translate(-10px, -8px) rotate(-2deg); }
+            20% { transform: translate(10px, 6px) rotate(2deg); }
+            30% { transform: translate(-12px, 5px) rotate(-1deg); }
+            40% { transform: translate(12px, -6px) rotate(3deg); }
+            50% { transform: translate(-6px, -10px) rotate(-2deg); }
+            60% { transform: translate(6px, 8px) rotate(2deg); }
+            70% { transform: translate(-5px, -5px) rotate(-1deg); }
+            80% { transform: translate(5px, 5px) rotate(1deg); }
+        }
+
+        .shake-screen {
+            animation: screen-shake 0.8s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        .envelope-container {
+            perspective: 1000px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 420px;
+            position: relative;
+        }
+
+        .envelope-wrapper {
+            position: relative;
+            width: 290px;
+            height: 180px;
+            cursor: pointer;
+            margin-top: 130px;
+            transition: transform 0.5s ease;
+        }
+
+        .envelope-back {
+            position: absolute;
+            inset: 0;
+            background: #0284c7;
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 25px rgba(56, 189, 248, 0.3);
+            z-index: 1;
+        }
+
+        .envelope-top-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 145px solid transparent;
+            border-right: 145px solid transparent;
+            border-top: 100px solid #38bdf8;
+            transform-origin: top;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 4;
+            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.3));
+        }
+
+        .envelope-wrapper.open .envelope-top-flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .wax-seal {
+            position: absolute;
+            top: 72px;
+            left: 125px;
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle, #38bdf8, #0284c7);
+            border: 2px solid #bae6fd;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0c4a6e;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            z-index: 5;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .envelope-wrapper.open .wax-seal {
+            opacity: 0;
+            transform: scale(0.3);
+            pointer-events: none;
+        }
+
+        .envelope-pocket {
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .envelope-pocket-left {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 145px solid #0369a1;
+            border-top: 90px solid transparent;
+            border-bottom: 90px solid #0369a1;
+        }
+
+        .envelope-pocket-right {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-right: 145px solid #0369a1;
+            border-top: 90px solid transparent;
+            border-bottom: 90px solid #0369a1;
+        }
+
+        .envelope-pocket-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 145px solid transparent;
+            border-right: 145px solid transparent;
+            border-bottom: 95px solid #0284c7;
+            filter: drop-shadow(0 -2px 4px rgba(0,0,0,0.25));
+        }
+
+        .letter-card {
+            position: absolute;
+            left: 10px;
+            right: 10px;
+            bottom: 8px;
+            height: 160px;
+            background: #f0f9ff;
+            color: #0f172a;
+            border-radius: 8px;
+            padding: 14px;
+            z-index: 2;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            border: 1px solid #bae6fd;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), height 0.5s ease, z-index 0s;
+            overflow-y: auto;
+            transform: translateY(0);
+        }
+
+        .envelope-wrapper.pull-up .letter-card {
+            transform: translateY(-190px);
+            z-index: 2;
+        }
+
+        .envelope-wrapper.open .letter-card {
+            transform: translateY(-105px);
+            height: 330px;
+            max-height: 52vh;
+            z-index: 10;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        }
+    </style>
+</head>
+<body class="w-screen h-screen flex justify-center items-center relative bg-slate-950 overflow-hidden">
+
+    <canvas id="bg-canvas" class="absolute inset-0 z-0 pointer-events-none opacity-40"></canvas>
+
+    <div id="explosion-overlay" class="absolute inset-0 z-40 bg-sky-200/90 flex items-center justify-center pointer-events-none">
+        <div id="explosion-flash" class="w-full h-full bg-white opacity-0 transition-opacity duration-300"></div>
+    </div>
+
+    <div class="relative z-10 w-full h-full max-w-sm flex flex-col items-center justify-between p-3">
+
+        <header class="w-full glass-card rounded-2xl px-4 py-2 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-flask text-sky-400 text-lg"></i>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <button id="btn-sound" class="w-8 h-8 rounded-xl glass-card flex items-center justify-center text-sky-300 hover:text-white transition" aria-label="Toggle Sound">
+                    <i id="sound-icon" class="fas fa-volume-up text-xs"></i>
+                </button>
+            </div>
+        </header>
+
+        <div id="menu-screen" class="w-full my-auto flex flex-col items-center text-center space-y-6">
+            <div class="space-y-2">
+                <h1 class="text-3xl font-extrabold font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-teal-300 glow-title">
+                    ChemQuest
+                </h1>
+            </div>
+
+            <div class="flex items-center justify-center pt-2">
+                <button id="btn-play" class="w-16 h-16 bg-gradient-to-tr from-sky-600 to-teal-500 hover:from-sky-500 hover:to-teal-400 text-white text-2xl font-bold rounded-2xl shadow-lg shadow-sky-500/30 hover:scale-105 active:scale-95 transition flex items-center justify-center" aria-label="Play Game" title="Play Game">
+                    <i class="fas fa-play ml-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="stage-sort" class="w-full my-auto flex flex-col items-center space-y-4 hidden">
+            <div id="flasks-grid-wrapper" class="w-full">
+                <div id="flasks-grid">
+                    <!-- Distinct Glassware SVGs generated here dynamically -->
+                </div>
+            </div>
+
+            <button id="btn-shuffle" class="px-4 py-2 bg-slate-800/80 hover:bg-slate-700 border border-slate-700 rounded-xl text-slate-300 text-xs font-semibold flex items-center gap-2 transition">
+                <i class="fas fa-shuffle"></i> Shuffle
+            </button>
+        </div>
+
+        <div id="stage-reaction" class="w-full my-auto flex flex-col items-center space-y-3 hidden">
+            <div class="grid grid-cols-4 gap-2 w-full max-w-xs px-1">
+                <button id="btn-reagent-1" class="flex flex-col items-center gap-1 group">
+                    <div class="w-12 h-12 rounded-2xl glass-card flex items-center justify-center border-sky-400/50 group-hover:scale-105 transition shadow-lg shadow-sky-500/20">
+                        <i class="fas fa-vial text-sky-400 text-lg"></i>
+                    </div>
+                </button>
+                <button id="btn-reagent-2" class="flex flex-col items-center gap-1 group">
+                    <div class="w-12 h-12 rounded-2xl glass-card flex items-center justify-center border-cyan-400/50 group-hover:scale-105 transition shadow-lg shadow-cyan-500/20">
+                        <i class="fas fa-eye-dropper text-cyan-400 text-lg"></i>
+                    </div>
+                </button>
+                <button id="btn-reagent-3" class="flex flex-col items-center gap-1 group">
+                    <div class="w-12 h-12 rounded-2xl glass-card flex items-center justify-center border-teal-400/50 group-hover:scale-105 transition shadow-lg shadow-teal-500/20">
+                        <i class="fas fa-vial-circle-check text-teal-400 text-lg"></i>
+                    </div>
+                </button>
+                <button id="btn-reagent-4" class="flex flex-col items-center gap-1 group">
+                    <div class="w-12 h-12 rounded-2xl glass-card flex items-center justify-center border-emerald-400/50 group-hover:scale-105 transition shadow-lg shadow-emerald-500/20">
+                        <i class="fas fa-bolt text-emerald-400 text-lg"></i>
+                    </div>
+                </button>
+            </div>
+
+            <div class="relative w-full max-w-xs h-60 glass-card rounded-2xl flex flex-col items-center justify-end pb-3 overflow-hidden border border-sky-500/30">
+                <div id="vessel-bubbles" class="absolute inset-x-0 bottom-6 top-10 pointer-events-none overflow-hidden z-20"></div>
+
+                <div class="relative w-44 h-52 flex items-end justify-center">
+                    <svg class="w-full h-full drop-shadow-[0_0_20px_rgba(56,189,248,0.6)]" viewBox="0 0 100 120">
+                        <defs>
+                            <clipPath id="flask-inner-shape">
+                                <path d="M 41.5 10.5 L 58.5 10.5 L 58.5 32 L 88 97.5 A 8 8 0 0 1 80.5 109.5 L 19.5 109.5 A 8 8 0 0 1 12 97.5 L 41.5 32 Z" />
+                            </clipPath>
+                        </defs>
+
+                        <g clip-path="url(#flask-inner-shape)">
+                            <rect id="reaction-liquid-rect" x="0" y="85" width="100" height="40" fill="#0284c7" class="transition-all duration-700 ease-out" />
+                            <ellipse id="reaction-liquid-top" cx="50" cy="85" rx="50" ry="4" fill="#38bdf8" class="transition-all duration-700 ease-out" />
+                        </g>
+
+                        <path d="M 40 8 L 60 8 L 60 32 L 90 98 A 10 10 0 0 1 82 112 L 18 112 A 10 10 0 0 1 10 98 L 40 32 Z" fill="rgba(255, 255, 255, 0.04)" stroke="rgba(255, 255, 255, 0.85)" stroke-width="3.5" />
+                        <rect x="34" y="4" width="32" height="6" rx="2" fill="rgba(255, 255, 255, 0.5)" />
+                    </svg>
+                </div>
+
+                <div class="flex items-center gap-2 mt-1">
+                    <div id="step-dot-1" class="w-2 h-2 rounded-full bg-slate-700 transition"></div>
+                    <div id="step-dot-2" class="w-2 h-2 rounded-full bg-slate-700 transition"></div>
+                    <div id="step-dot-3" class="w-2 h-2 rounded-full bg-slate-700 transition"></div>
+                    <div id="step-dot-4" class="w-2 h-2 rounded-full bg-slate-700 transition"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="stage-envelope" class="w-full my-auto flex flex-col items-center justify-center hidden">
+
+            <div class="envelope-container my-auto">
+                <div id="interactive-envelope" class="envelope-wrapper">
+                    <div class="envelope-back"></div>
+                    <div class="envelope-top-flap"></div>
+                    <div class="wax-seal"><i class="fas fa-flask"></i></div>
+                    
+                    <div id="envelope-letter" class="letter-card">
+                        <div class="text-center pb-2 border-b border-sky-200/80 mb-2">
+                            <span class="text-[10px] font-bold tracking-widest text-sky-900 uppercase block">Happy Teacher's Day</span>
+                            <h3 class="text-2xl font-bold font-handwriting text-sky-950 mt-0.5">Dear Ma'am Jerah,</h3>
+                        </div>
+                        <div class="space-y-3 font-handwriting text-base text-slate-800 leading-relaxed">
+                            <p>Happy Teacher’s Day!</p>
+                            <p>
+                                I wanted to take a moment to express my sincere gratitude for everything you have done for us. Thank you so much for your endless patience back in Grade 9 when you guided us through Chemistry 1. Chemistry can be a challenging subject, but your dedication and clear teaching made all the difference. Because of you, I learned so much, and Chemistry has truly become one of my favorite subjects.
+                            </p>
+                            <p>
+                                Thank you as well for serving as our YES-O adviser from back then up until now. Your continuous support, guidance, and leadership in our organization mean the world to us. We are so lucky to have a teacher and adviser who cares so deeply about our growth both inside and outside the classroom.
+                            </p>
+                            <p>
+                                Wishing you a wonderful and well-deserved Teacher's Day!
+                            </p>
+                            <p class="text-right font-bold text-sky-950 pt-2">
+                                With deep gratitude and appreciation,<br>Chanz
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="envelope-pocket">
+                        <div class="envelope-pocket-left"></div>
+                        <div class="envelope-pocket-right"></div>
+                        <div class="envelope-pocket-bottom"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-2">
+                <button id="btn-replay" class="px-5 py-2 bg-gradient-to-r from-sky-600 to-teal-600 hover:from-sky-500 hover:to-teal-500 text-white text-xs font-semibold rounded-xl shadow-lg transition flex items-center gap-2">
+                    <i class="fas fa-rotate-left"></i> Replay
+                </button>
+            </div>
+        </div>
+
+        <footer class="w-full text-center py-1">
+        </footer>
+
+    </div>
+
+    <script>
+        class AudioController {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playTone(freq, type = 'sine', duration = 0.1, vol = 0.1) {
+                if (!this.enabled || !this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e) {}
+            }
+
+            playTap() { this.playTone(480, 'sine', 0.08, 0.08); }
+
+            playSwap() {
+                this.playTone(520, 'sine', 0.08, 0.1);
+                setTimeout(() => this.playTone(680, 'sine', 0.1, 0.1), 50);
+            }
+
+            playBubble() {
+                const freq = 300 + Math.random() * 350;
+                this.playTone(freq, 'sine', 0.1, 0.08);
+            }
+
+            playPreExplosion() {
+                this.playTone(180, 'sawtooth', 0.4, 0.15);
+                setTimeout(() => this.playTone(260, 'sawtooth', 0.4, 0.2), 150);
+                setTimeout(() => this.playTone(400, 'sawtooth', 0.5, 0.25), 300);
+            }
+
+            playExplosion() {
+                this.playTone(90, 'sawtooth', 0.8, 0.35);
+                setTimeout(() => this.playTone(220, 'triangle', 0.6, 0.25), 100);
+                setTimeout(() => this.playTone(523.25, 'sine', 0.5, 0.2), 250);
+            }
+
+            playSuccess() {
+                [329.63, 392.00, 523.25, 659.25].forEach((f, i) => {
+                    setTimeout(() => this.playTone(f, 'sine', 0.22, 0.12), i * 90);
+                });
+            }
+        }
+
+        const audio = new AudioController();
+
+        const bgCanvas = document.getElementById('bg-canvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        let bgParticles = [];
+
+        function initBgCanvas() {
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = window.innerHeight;
+            bgParticles = [];
+            for (let i = 0; i < 25; i++) {
+                bgParticles.push({
+                    x: Math.random() * bgCanvas.width,
+                    y: Math.random() * bgCanvas.height,
+                    radius: Math.random() * 4 + 2,
+                    vy: -(Math.random() * 0.7 + 0.2),
+                    alpha: Math.random() * 0.5 + 0.2,
+                    color: Math.random() > 0.5 ? '#38bdf8' : '#2dd4bf'
+                });
+            }
+        }
+
+        function animateBgParticles() {
+            bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+            bgParticles.forEach(p => {
+                p.y += p.vy;
+                if (p.y < -10) {
+                    p.y = bgCanvas.height + 10;
+                    p.x = Math.random() * bgCanvas.width;
+                }
+                bgCtx.fillStyle = p.color;
+                bgCtx.globalAlpha = p.alpha;
+                bgCtx.beginPath();
+                bgCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                bgCtx.fill();
+            });
+            bgCtx.globalAlpha = 1;
+            requestAnimationFrame(animateBgParticles);
+        }
+
+        // 5 Simple, Distinct Laboratory Glassware Shapes
+        const LAB_FLASKS = [
+            {
+                id: 0,
+                hex: "#1d4ed8",
+                glow: "#3b82f6",
+                // 1. Standard Erlenmeyer Flask (Conical)
+                svgPath: `
+                    <rect x="21" y="4" width="8" height="3" rx="1" fill="rgba(255,255,255,0.7)" />
+                    <path d="M 22 7 L 28 7 L 28 24 L 40 60 A 4 4 0 0 1 36 66 L 14 66 A 4 4 0 0 1 10 60 L 22 24 Z" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linejoin="round" />
+                    <path d="M 12 58 L 38 58 A 3 3 0 0 1 35 64 L 15 64 A 3 3 0 0 1 12 58 Z" fill="#1d4ed8" />
+                `
+            },
+            {
+                id: 1,
+                hex: "#0284c7",
+                glow: "#38bdf8",
+                // 2. Round Bottom Florence Flask (Spherical Bulb)
+                svgPath: `
+                    <rect x="21" y="4" width="8" height="3" rx="1" fill="rgba(255,255,255,0.7)" />
+                    <path d="M 22 7 L 28 7 L 28 28 A 18 18 0 1 1 22 28 Z" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linejoin="round" />
+                    <path d="M 10 46 A 15 15 0 0 0 40 46 Z" fill="#0284c7" />
+                `
+            },
+            {
+                id: 2,
+                hex: "#06b6d4",
+                glow: "#22d3ee",
+                // 3. Sharp Triangular Flask
+                svgPath: `
+                    <rect x="21" y="4" width="8" height="3" rx="1" fill="rgba(255,255,255,0.7)" />
+                    <path d="M 22 7 L 28 7 L 28 16 L 42 63 A 3 3 0 0 1 39 67 L 11 67 A 3 3 0 0 1 8 63 L 22 16 Z" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linejoin="round" />
+                    <path d="M 10 60 L 40 60 L 38 65 L 12 65 Z" fill="#06b6d4" />
+                `
+            },
+            {
+                id: 3,
+                hex: "#0d9488",
+                glow: "#2dd4bf",
+                // 4. Rectangular Reagent Bottle
+                svgPath: `
+                    <rect x="20" y="4" width="10" height="4" rx="1" fill="rgba(255,255,255,0.7)" />
+                    <path d="M 22 8 L 28 8 L 28 16 L 39 16 A 3 3 0 0 1 42 19 L 42 63 A 3 3 0 0 1 39 66 L 11 66 A 3 3 0 0 1 8 63 L 8 19 A 3 3 0 0 1 11 16 L 22 16 Z" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linejoin="round" />
+                    <rect x="10" y="40" width="30" height="24" rx="2" fill="#0d9488" />
+                `
+            },
+            {
+                id: 4,
+                hex: "#10b981",
+                glow: "#34d399",
+                // 5. Volumetric Pear/Teardrop Flask
+                svgPath: `
+                    <rect x="21" y="4" width="8" height="3" rx="1" fill="rgba(255,255,255,0.7)" />
+                    <path d="M 23 7 L 27 7 L 27 34 C 35 40, 37 54, 30 62 C 26 66, 24 66, 20 62 C 13 54, 15 40, 23 34 Z" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linejoin="round" />
+                    <path d="M 17 48 C 22 58, 28 58, 33 48 C 34 54, 30 62, 25 62 C 20 62, 16 54, 17 48 Z" fill="#10b981" />
+                `
+            }
+        ];
+
+        let currentFlasks = [];
+        let cardElements = [];
+        let activeDragIndex = null;
+        let hoverTargetIndex = null;
+        let dragStartX = 0;
+        let dragStartY = 0;
+
+        let slotWidth = 64;
+
+        function initStage1() {
+            recalculateSlotWidth();
+            shuffleFlasks();
+        }
+
+        function recalculateSlotWidth() {
+            const containerWidth = Math.min(window.innerWidth - 32, 360);
+            slotWidth = containerWidth / 5;
+        }
+
+        function shuffleFlasks() {
+            currentFlasks = [...LAB_FLASKS];
+            do {
+                currentFlasks.sort(() => Math.random() - 0.5);
+            } while (checkIsSorted());
+
+            renderFlasks();
+        }
+
+        function checkIsSorted() {
+            const isAsc = currentFlasks.every((flask, idx) => flask.id === idx);
+            const isDesc = currentFlasks.every((flask, idx) => flask.id === (currentFlasks.length - 1 - idx));
+            return isAsc || isDesc;
+        }
+
+        function renderFlasks() {
+            const grid = document.getElementById('flasks-grid');
+            grid.innerHTML = '';
+            cardElements = [];
+
+            currentFlasks.forEach((flask, idx) => {
+                const flaskCard = document.createElement('div');
+                flaskCard.className = 'flask-card';
+                flaskCard.style.width = `${slotWidth}px`;
+                flaskCard.setAttribute('data-id', flask.id);
+                flaskCard.style.left = `${idx * slotWidth}px`;
+
+                flaskCard.innerHTML = `
+                    <div class="relative w-full h-36 flex items-end justify-center py-1 pointer-events-none">
+                        <svg class="w-full h-full filter drop-shadow-[0_0_12px_${flask.glow}]" viewBox="0 0 50 75">
+                            ${flask.svgPath}
+                        </svg>
+                    </div>
+                `;
+
+                flaskCard.addEventListener('pointerdown', (e) => onPointerDown(e, idx));
+
+                grid.appendChild(flaskCard);
+                cardElements.push(flaskCard);
+            });
+        }
+
+        function onPointerDown(e, idx) {
+            audio.init();
+            activeDragIndex = idx;
+            hoverTargetIndex = idx;
+
+            const card = cardElements[idx];
+            card.classList.add('dragging');
+            card.setPointerCapture(e.pointerId);
+
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+
+            const onPointerMove = (e) => {
+                if (activeDragIndex === null) return;
+                const currentDragX = e.clientX - dragStartX;
+                const currentDragY = e.clientY - dragStartY;
+
+                card.style.transform = `translate3d(${currentDragX}px, ${currentDragY}px, 0) scale(1.15)`;
+
+                const baseSlotX = activeDragIndex * slotWidth;
+                const currentCursorSlotX = baseSlotX + currentDragX + (slotWidth / 2);
+                let newTargetIndex = Math.floor(currentCursorSlotX / slotWidth);
+                newTargetIndex = Math.max(0, Math.min(currentFlasks.length - 1, newTargetIndex));
+
+                if (newTargetIndex !== hoverTargetIndex) {
+                    hoverTargetIndex = newTargetIndex;
+                    audio.playTap();
+                    updateNeighborsOffset();
+                }
+            };
+
+            const onPointerUp = (e) => {
+                card.releasePointerCapture(e.pointerId);
+                card.removeEventListener('pointermove', onPointerMove);
+                card.removeEventListener('pointerup', onPointerUp);
+
+                if (activeDragIndex !== null) {
+                    finalizeReorder(activeDragIndex, hoverTargetIndex);
+                }
+            };
+
+            card.addEventListener('pointermove', onPointerMove);
+            card.addEventListener('pointerup', onPointerUp);
+        }
+
+        function updateNeighborsOffset() {
+            cardElements.forEach((card, idx) => {
+                if (idx === activeDragIndex) return;
+
+                let shift = 0;
+                if (activeDragIndex < hoverTargetIndex) {
+                    if (idx > activeDragIndex && idx <= hoverTargetIndex) {
+                        shift = -slotWidth;
+                    }
+                } else if (activeDragIndex > hoverTargetIndex) {
+                    if (idx >= hoverTargetIndex && idx < activeDragIndex) {
+                        shift = slotWidth;
+                    }
+                }
+
+                card.style.transform = `translate3d(${shift}px, 0, 0)`;
+            });
+        }
+
+        function finalizeReorder(fromIdx, toIdx) {
+            const draggedItem = currentFlasks.splice(fromIdx, 1)[0];
+            currentFlasks.splice(toIdx, 0, draggedItem);
+
+            activeDragIndex = null;
+            hoverTargetIndex = null;
+
+            if (fromIdx !== toIdx) {
+                audio.playSwap();
+            }
+
+            renderFlasks();
+
+            if (checkIsSorted()) {
+                audio.playSuccess();
+                setTimeout(() => {
+                    document.getElementById('stage-sort').classList.add('hidden');
+                    document.getElementById('stage-reaction').classList.remove('hidden');
+                    initStage2();
+                }, 600);
+            }
+        }
+
+        let reagentCount = 0;
+        let bubbleInterval = null;
+
+        const REAGENT_STAGES = [
+            { color: "#0284c7", topColor: "#38bdf8", yPos: 65 },
+            { color: "#06b6d4", topColor: "#22d3ee", yPos: 45 },
+            { color: "#0d9488", topColor: "#2dd4bf", yPos: 25 },
+            { color: "#10b981", topColor: "#34d399", yPos: 12 }
+        ];
+
+        function initStage2() {
+            reagentCount = 0;
+            if (bubbleInterval) clearInterval(bubbleInterval);
+            updateFlaskLiquid("#0284c7", "#38bdf8", 85);
+            updateStepDots();
+            enableReagentButtons(true);
+        }
+
+        function updateFlaskLiquid(color, topColor, yPos) {
+            const liquidRect = document.getElementById('reaction-liquid-rect');
+            const liquidTop = document.getElementById('reaction-liquid-top');
+            
+            liquidRect.setAttribute('fill', color);
+            liquidRect.setAttribute('y', yPos);
+            liquidRect.setAttribute('height', 120 - yPos);
+
+            liquidTop.setAttribute('fill', topColor);
+            liquidTop.setAttribute('cy', yPos);
+        }
+
+        function updateStepDots() {
+            for (let i = 1; i <= 4; i++) {
+                const dot = document.getElementById(`step-dot-${i}`);
+                if (i <= reagentCount) {
+                    dot.className = 'w-2 h-2 rounded-full bg-teal-400 shadow-[0_0_8px_rgba(45,212,191,0.8)] transition';
+                } else {
+                    dot.className = 'w-2 h-2 rounded-full bg-slate-700 transition';
+                }
+            }
+        }
+
+        function enableReagentButtons(enabled) {
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.getElementById(`btn-reagent-${i}`);
+                if (enabled) {
+                    btn.removeAttribute('disabled');
+                    btn.classList.remove('opacity-40', 'pointer-events-none');
+                } else {
+                    btn.setAttribute('disabled', 'true');
+                    btn.classList.add('opacity-40', 'pointer-events-none');
+                }
+            }
+        }
+
+        function addReagent(index) {
+            audio.init();
+            if (reagentCount >= 4) return;
+
+            const btn = document.getElementById(`btn-reagent-${index}`);
+            btn.setAttribute('disabled', 'true');
+            btn.classList.add('opacity-40', 'pointer-events-none');
+
+            reagentCount++;
+            audio.playBubble();
+            updateStepDots();
+
+            const stageInfo = REAGENT_STAGES[reagentCount - 1];
+            updateFlaskLiquid(stageInfo.color, stageInfo.topColor, stageInfo.yPos);
+
+            spawnBubbles(reagentCount * 4);
+
+            if (reagentCount === 3) {
+                startIntenseBubbling();
+            } else if (reagentCount === 4) {
+                enableReagentButtons(false);
+                setTimeout(triggerExplosionSequence, 600);
+            }
+        }
+
+        function spawnBubbles(count) {
+            const container = document.getElementById('vessel-bubbles');
+            for (let i = 0; i < count; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble-particle';
+                const size = Math.random() * 8 + 4;
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.left = `${Math.random() * 60 + 20}%`;
+                bubble.style.bottom = '10px';
+                bubble.style.animationDuration = `${Math.random() * 0.8 + 0.8}s`;
+                container.appendChild(bubble);
+                setTimeout(() => bubble.remove(), 1600);
+            }
+        }
+
+        function startIntenseBubbling() {
+            if (bubbleInterval) clearInterval(bubbleInterval);
+            bubbleInterval = setInterval(() => {
+                spawnBubbles(3);
+                audio.playBubble();
+            }, 300);
+        }
+
+        function triggerExplosionSequence() {
+            if (bubbleInterval) clearInterval(bubbleInterval);
+
+            audio.playPreExplosion();
+
+            const overlay = document.getElementById('explosion-overlay');
+            const flash = document.getElementById('explosion-flash');
+
+            overlay.style.opacity = '1';
+            flash.style.opacity = '0.9';
+
+            setTimeout(() => {
+                audio.playExplosion();
+                document.body.classList.add('shake-screen');
+                flash.style.opacity = '0';
+                triggerExplosionSparks();
+            }, 300);
+
+            setTimeout(() => {
+                document.body.classList.remove('shake-screen');
+                overlay.style.opacity = '0';
+                document.getElementById('stage-reaction').classList.add('hidden');
+                document.getElementById('stage-envelope').classList.remove('hidden');
+            }, 1000);
+        }
+
+        function triggerExplosionSparks() {
+            const colors = ['#38bdf8', '#2dd4bf', '#34d399', '#bae6fd', '#ffffff'];
+            for (let i = 0; i < 50; i++) {
+                const p = document.createElement('div');
+                const size = Math.random() * 8 + 5;
+                p.style.position = 'fixed';
+                p.style.width = `${size}px`;
+                p.style.height = `${size}px`;
+                p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                p.style.borderRadius = '50%';
+                p.style.left = '50vw';
+                p.style.top = '50vh';
+                p.style.zIndex = '100';
+                p.style.pointerEvents = 'none';
+
+                const angle = Math.random() * Math.PI * 2;
+                const dist = Math.random() * 220 + 40;
+                const dx = Math.cos(angle) * dist;
+                const dy = Math.sin(angle) * dist;
+
+                p.animate([
+                    { transform: 'translate(-50%, -50%) scale(1.2)', opacity: 1 },
+                    { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(0)`, opacity: 0 }
+                ], {
+                    duration: Math.random() * 800 + 600,
+                    easing: 'cubic-bezier(0.1, 0.8, 0.3, 1)'
+                });
+
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 1400);
+            }
+        }
+
+        let isEnvelopeAnimating = false;
+
+        function toggleEnvelope() {
+            if (isEnvelopeAnimating) return;
+            const envelope = document.getElementById('interactive-envelope');
+
+            isEnvelopeAnimating = true;
+
+            if (!envelope.classList.contains('open')) {
+                audio.playSuccess();
+                envelope.classList.add('pull-up');
+                
+                setTimeout(() => {
+                    envelope.classList.add('open');
+                    triggerExplosionSparks();
+                    isEnvelopeAnimating = false;
+                }, 500);
+
+            } else {
+                audio.playTap();
+                envelope.classList.remove('open');
+                
+                setTimeout(() => {
+                    envelope.classList.remove('pull-up');
+                    setTimeout(() => {
+                        isEnvelopeAnimating = false;
+                    }, 500);
+                }, 400);
+            }
+        }
+
+        window.addEventListener('load', () => {
+            initBgCanvas();
+            animateBgParticles();
+
+            document.getElementById('btn-play').addEventListener('click', () => {
+                audio.init();
+                document.getElementById('menu-screen').classList.add('hidden');
+                document.getElementById('stage-sort').classList.remove('hidden');
+                initStage1();
+            });
+
+            document.getElementById('btn-shuffle').addEventListener('click', () => {
+                audio.init();
+                shuffleFlasks();
+            });
+
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`btn-reagent-${i}`).addEventListener('click', () => {
+                    addReagent(i);
+                });
+            }
+
+            const envelope = document.getElementById('interactive-envelope');
+            envelope.addEventListener('click', toggleEnvelope);
+
+            document.getElementById('btn-replay').addEventListener('click', () => {
+                audio.init();
+                envelope.classList.remove('open', 'pull-up');
+                document.getElementById('stage-envelope').classList.add('hidden');
+                document.getElementById('menu-screen').classList.remove('hidden');
+            });
+
+            document.getElementById('btn-sound').addEventListener('click', () => {
+                audio.init();
+                audio.enabled = !audio.enabled;
+                const icon = document.getElementById('sound-icon');
+                icon.className = audio.enabled ? 'fas fa-volume-up text-xs' : 'fas fa-volume-mute text-xs';
+            });
+        });
+
+        window.addEventListener('resize', () => {
+            initBgCanvas();
+            recalculateSlotWidth();
+            if (currentFlasks.length > 0) {
+                renderFlasks();
+            }
+        });
+    </script>
+</body>
+</html>
