@@ -264,9 +264,9 @@
         }
 
         .envelope-wrapper.open .letter-card {
-            transform: translateY(-105px);
-            height: 330px;
-            max-height: 52vh;
+            transform: translateY(-135px);
+            height: 360px;
+            max-height: 58vh;
             z-index: 10;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
         }
@@ -321,7 +321,7 @@
 
             <div id="flasks-grid-wrapper" class="w-full">
                 <div id="flasks-grid">
-                    <!-- Distinct Glassware SVGs generated here dynamically -->
+                    <!-- Dynamic glassware -->
                 </div>
             </div>
 
@@ -399,18 +399,21 @@
                     <div id="envelope-letter" class="letter-card">
                         <div class="text-center pb-2 border-b border-sky-200/80 mb-2">
                             <span class="text-[10px] font-bold tracking-widest text-sky-900 uppercase block">Happy Teacher's Day</span>
-                            <h3 class="text-2xl font-bold font-handwriting text-sky-950 mt-0.5">Dear Chemistry Teacher,</h3>
+                            <h3 class="text-2xl font-bold font-handwriting text-sky-950 mt-0.5">Dear Ma'am Jerah,</h3>
                         </div>
-                        <div class="space-y-3 font-handwriting text-lg text-slate-800 leading-relaxed">
+                        <div class="space-y-3 font-handwriting text-base text-slate-800 leading-relaxed">
                             <p>Happy Teacher’s Day!</p>
                             <p>
-                                Thank you for being the ultimate catalyst in our learning journey! You make chemistry feel engaging, understandable, and truly magical every single day.
+                                I wanted to take a moment to express my sincere gratitude for everything you have done for us. Thank you so much for your endless patience back in Grade 9 when you guided us through Chemistry 1. Chemistry can be a challenging subject, but your dedication and clear teaching made all the difference. Because of you, I learned so much, and Chemistry has truly become one of my favorite subjects.
                             </p>
                             <p>
-                                Thank you for all your patience, dedication, and inspiring lessons. You inspire us to keep experimenting, learning, and striving for our best potential.
+                                Thank you as well for serving as our YES-O adviser from back then up until now. Your continuous support, guidance, and leadership in our organization mean the world to us. We are so lucky to have a teacher and adviser who cares so deeply about our growth both inside and outside the classroom.
+                            </p>
+                            <p>
+                                Wishing you a wonderful and well-deserved Teacher's Day!
                             </p>
                             <p class="text-right font-bold text-sky-950 pt-2">
-                                With endless thanks & appreciation,<br>Your Students
+                                With deep gratitude and appreciation,<br>Chanz
                             </p>
                         </div>
                     </div>
@@ -558,13 +561,11 @@
             requestAnimationFrame(animateBgParticles);
         }
 
-        // 5 Simple, Distinct Laboratory Glassware Shapes
         const LAB_FLASKS = [
             {
                 id: 0,
                 hex: "#1d4ed8",
                 glow: "#3b82f6",
-                // 1. Standard Erlenmeyer Flask (Conical)
                 svgPath: `
                     <rect x="21" y="4" width="8" height="3" rx="1" fill="rgba(255,255,255,0.7)" />
                     <path d="M 22 7 L 28 7 L 28 24 L 40 60 A 4 4 0 0 1 36 66 L 14 66 A 4 4 0 0 1 10 60 L 22 24 Z" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linejoin="round" />
@@ -575,7 +576,6 @@
                 id: 1,
                 hex: "#0284c7",
                 glow: "#38bdf8",
-                // 2. Round Bottom Florence Flask (Spherical Bulb)
                 svgPath: `
                     <rect x="21" y="4" width="8" height="3" rx="1" fill="rgba(255,255,255,0.7)" />
                     <path d="M 22 7 L 28 7 L 28 28 A 18 18 0 1 1 22 28 Z" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linejoin="round" />
@@ -586,7 +586,6 @@
                 id: 2,
                 hex: "#06b6d4",
                 glow: "#22d3ee",
-                // 3. Sharp Triangular Flask
                 svgPath: `
                     <rect x="21" y="4" width="8" height="3" rx="1" fill="rgba(255,255,255,0.7)" />
                     <path d="M 22 7 L 28 7 L 28 16 L 42 63 A 3 3 0 0 1 39 67 L 11 67 A 3 3 0 0 1 8 63 L 22 16 Z" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linejoin="round" />
@@ -597,7 +596,6 @@
                 id: 3,
                 hex: "#0d9488",
                 glow: "#2dd4bf",
-                // 4. Rectangular Reagent Bottle
                 svgPath: `
                     <rect x="20" y="4" width="10" height="4" rx="1" fill="rgba(255,255,255,0.7)" />
                     <path d="M 22 8 L 28 8 L 28 16 L 39 16 A 3 3 0 0 1 42 19 L 42 63 A 3 3 0 0 1 39 66 L 11 66 A 3 3 0 0 1 8 63 L 8 19 A 3 3 0 0 1 11 16 L 22 16 Z" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linejoin="round" />
@@ -608,7 +606,6 @@
                 id: 4,
                 hex: "#10b981",
                 glow: "#34d399",
-                // 5. Volumetric Pear/Teardrop Flask
                 svgPath: `
                     <rect x="21" y="4" width="8" height="3" rx="1" fill="rgba(255,255,255,0.7)" />
                     <path d="M 23 7 L 27 7 L 27 34 C 35 40, 37 54, 30 62 C 26 66, 24 66, 20 62 C 13 54, 15 40, 23 34 Z" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linejoin="round" />
@@ -996,6 +993,7 @@
             });
 
             document.getElementById('btn-close-modal').addEventListener('click', () => {
+                document.getElementById('modal-instructions').classList.hidden = true;
                 document.getElementById('modal-instructions').classList.add('hidden');
             });
 
